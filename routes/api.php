@@ -33,3 +33,6 @@ require __DIR__.'/outputs.php';
 
 // Center settings routes are registered from routes/center_settings.php.
 require __DIR__.'/center_settings.php';
+
+// Certificate routes are registered from routes/certificates.php.
+require __DIR__.'/certificates.php';

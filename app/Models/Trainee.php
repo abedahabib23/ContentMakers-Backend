@@ -57,4 +57,12 @@ class Trainee extends Model
     {
         return $this->hasMany(TraineeOutput::class);
     }
+
+    /**
+     * @return HasMany<Certificate, $this>
+     */
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
+    }
 }
