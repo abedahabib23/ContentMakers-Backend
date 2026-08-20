@@ -19,7 +19,7 @@ class RegistrationFormController extends Controller
 
     public function index(Project $project): JsonResponse
     {
-        Gate::authorize('view', $project);
+        Gate::authorize('viewAny', [RegistrationForm::class, $project]);
 
         return ApiResponse::success(
             RegistrationFormResource::collection($project->registrationForms()->latest()->get()),
@@ -29,7 +29,7 @@ class RegistrationFormController extends Controller
 
     public function store(StoreRegistrationFormRequest $request, Project $project): JsonResponse
     {
-        Gate::authorize('update', $project);
+        Gate::authorize('create', [RegistrationForm::class, $project]);
 
         $form = $this->formService->create($project, $request->validated());
 
@@ -38,7 +38,7 @@ class RegistrationFormController extends Controller
 
     public function submissions(RegistrationForm $form): JsonResponse
     {
-        Gate::authorize('view', $form->project);
+        Gate::authorize('view', $form);
 
         $submissions = $form->submissions()->latest()->paginate();
 

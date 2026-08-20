@@ -14,7 +14,7 @@ class UpdateTrainingSessionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('session')->project);
+        return Gate::allows('update', $this->route('session'));
     }
 
     /**

@@ -19,7 +19,7 @@ class AttendanceController extends Controller
 
     public function index(TrainingSession $session): JsonResponse
     {
-        Gate::authorize('view', $session->project);
+        Gate::authorize('viewAny', [Attendance::class, $session]);
 
         return ApiResponse::success(
             AttendanceResource::collection($this->attendanceService->list($session)),
@@ -29,7 +29,7 @@ class AttendanceController extends Controller
 
     public function store(StoreAttendanceRequest $request, TrainingSession $session): JsonResponse
     {
-        Gate::authorize('update', $session->project);
+        Gate::authorize('create', [Attendance::class, $session]);
 
         $attendance = $this->attendanceService->create($session, $request->validated());
 
@@ -38,14 +38,14 @@ class AttendanceController extends Controller
 
     public function show(Attendance $attendance): JsonResponse
     {
-        Gate::authorize('view', $attendance->trainingSession->project);
+        Gate::authorize('view', $attendance);
 
         return ApiResponse::success(new AttendanceResource($attendance->load('trainee.user')), __('attendance.retrieved'));
     }
 
     public function update(UpdateAttendanceRequest $request, Attendance $attendance): JsonResponse
     {
-        Gate::authorize('update', $attendance->trainingSession->project);
+        Gate::authorize('update', $attendance);
 
         $attendance = $this->attendanceService->update($attendance, $request->validated());
 
@@ -54,7 +54,7 @@ class AttendanceController extends Controller
 
     public function destroy(Attendance $attendance): JsonResponse
     {
-        Gate::authorize('update', $attendance->trainingSession->project);
+        Gate::authorize('delete', $attendance);
 
         $this->attendanceService->delete($attendance);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Attendance;
 
 use App\Enums\AttendanceStatus;
+use App\Models\Attendance;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -18,7 +19,7 @@ class StoreAttendanceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('session')->project);
+        return Gate::allows('create', [Attendance::class, $this->route('session')]);
     }
 
     /**

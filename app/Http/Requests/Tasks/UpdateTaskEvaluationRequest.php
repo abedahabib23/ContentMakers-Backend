@@ -13,7 +13,7 @@ class UpdateTaskEvaluationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('evaluation')->task->project);
+        return Gate::allows('update', $this->route('evaluation'));
     }
 
     /**

@@ -19,14 +19,14 @@ class TaskController extends Controller
 
     public function index(Project $project): JsonResponse
     {
-        Gate::authorize('view', $project);
+        Gate::authorize('viewAny', [Task::class, $project]);
 
         return ApiResponse::success(TaskResource::collection($this->taskService->list($project)), __('tasks.listed'));
     }
 
     public function store(StoreTaskRequest $request, Project $project): JsonResponse
     {
-        Gate::authorize('update', $project);
+        Gate::authorize('create', [Task::class, $project]);
 
         $task = $this->taskService->create($project, $request->validated());
 
@@ -35,14 +35,14 @@ class TaskController extends Controller
 
     public function show(Task $task): JsonResponse
     {
-        Gate::authorize('view', $task->project);
+        Gate::authorize('view', $task);
 
         return ApiResponse::success(new TaskResource($task), __('tasks.retrieved'));
     }
 
     public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
-        Gate::authorize('update', $task->project);
+        Gate::authorize('update', $task);
 
         $task = $this->taskService->update($task, $request->validated());
 
@@ -51,7 +51,7 @@ class TaskController extends Controller
 
     public function destroy(Task $task): JsonResponse
     {
-        Gate::authorize('update', $task->project);
+        Gate::authorize('delete', $task);
 
         $this->taskService->delete($task);
 

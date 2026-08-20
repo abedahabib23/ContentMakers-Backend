@@ -15,7 +15,7 @@ class UpdateAttendanceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('attendance')->trainingSession->project);
+        return Gate::allows('update', $this->route('attendance'));
     }
 
     /**

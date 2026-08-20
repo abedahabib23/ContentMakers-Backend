@@ -13,7 +13,7 @@ class UpdateTaskRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('task')->project);
+        return Gate::allows('update', $this->route('task'));
     }
 
     /**

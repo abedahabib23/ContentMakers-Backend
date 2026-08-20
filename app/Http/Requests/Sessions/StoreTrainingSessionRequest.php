@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Sessions;
 
+use App\Models\TrainingSession;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -12,12 +13,11 @@ class StoreTrainingSessionRequest extends FormRequest
      * Checked here, not just in the controller — FormRequest validation
      * runs before the controller method body, so an unauthorized caller
      * would otherwise see validation error details before ever being told
-     * they're not allowed. Ability is "update" on the parent project,
-     * matching TrainingSessionController.
+     * they're not allowed.
      */
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('project'));
+        return Gate::allows('create', [TrainingSession::class, $this->route('project')]);
     }
 
     /**

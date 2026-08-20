@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tasks;
 
+use App\Models\TaskEvaluation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -14,7 +15,7 @@ class StoreTaskEvaluationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('task')->project);
+        return Gate::allows('create', [TaskEvaluation::class, $this->route('task')]);
     }
 
     /**

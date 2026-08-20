@@ -19,21 +19,21 @@ class RegistrationSubmissionController extends Controller
 
     public function idPhoto(RegistrationSubmission $submission): StreamedResponse
     {
-        Gate::authorize('view', $submission->registrationForm->project);
+        Gate::authorize('view', $submission->registrationForm);
 
         return Storage::disk(RegistrationSubmissionService::DISK)->download($submission->id_photo_path);
     }
 
     public function cv(RegistrationSubmission $submission): StreamedResponse
     {
-        Gate::authorize('view', $submission->registrationForm->project);
+        Gate::authorize('view', $submission->registrationForm);
 
         return Storage::disk(RegistrationSubmissionService::DISK)->download($submission->cv_path);
     }
 
     public function accept(RegistrationSubmission $submission): JsonResponse
     {
-        Gate::authorize('update', $submission->registrationForm->project);
+        Gate::authorize('review', $submission->registrationForm);
 
         $result = $this->submissionService->accept($submission);
 
@@ -47,7 +47,7 @@ class RegistrationSubmissionController extends Controller
 
     public function reject(RegistrationSubmission $submission): JsonResponse
     {
-        Gate::authorize('update', $submission->registrationForm->project);
+        Gate::authorize('review', $submission->registrationForm);
 
         $submission = $this->submissionService->reject($submission);
 

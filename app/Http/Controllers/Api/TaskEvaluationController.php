@@ -19,7 +19,7 @@ class TaskEvaluationController extends Controller
 
     public function index(Task $task): JsonResponse
     {
-        Gate::authorize('view', $task->project);
+        Gate::authorize('viewAny', [TaskEvaluation::class, $task]);
 
         return ApiResponse::success(
             TaskEvaluationResource::collection($this->evaluationService->list($task)),
@@ -29,7 +29,7 @@ class TaskEvaluationController extends Controller
 
     public function store(StoreTaskEvaluationRequest $request, Task $task): JsonResponse
     {
-        Gate::authorize('update', $task->project);
+        Gate::authorize('create', [TaskEvaluation::class, $task]);
 
         $evaluation = $this->evaluationService->create($task, $request->validated());
 
@@ -42,7 +42,7 @@ class TaskEvaluationController extends Controller
 
     public function show(TaskEvaluation $evaluation): JsonResponse
     {
-        Gate::authorize('view', $evaluation->task->project);
+        Gate::authorize('view', $evaluation);
 
         return ApiResponse::success(
             new TaskEvaluationResource($evaluation->load('trainee.user', 'task')),
@@ -52,7 +52,7 @@ class TaskEvaluationController extends Controller
 
     public function update(UpdateTaskEvaluationRequest $request, TaskEvaluation $evaluation): JsonResponse
     {
-        Gate::authorize('update', $evaluation->task->project);
+        Gate::authorize('update', $evaluation);
 
         $evaluation = $this->evaluationService->update($evaluation, $request->validated());
 
@@ -64,7 +64,7 @@ class TaskEvaluationController extends Controller
 
     public function destroy(TaskEvaluation $evaluation): JsonResponse
     {
-        Gate::authorize('update', $evaluation->task->project);
+        Gate::authorize('delete', $evaluation);
 
         $this->evaluationService->delete($evaluation);
 

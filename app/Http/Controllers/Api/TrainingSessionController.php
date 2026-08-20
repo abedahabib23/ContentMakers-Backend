@@ -19,7 +19,7 @@ class TrainingSessionController extends Controller
 
     public function index(Project $project): JsonResponse
     {
-        Gate::authorize('view', $project);
+        Gate::authorize('viewAny', [TrainingSession::class, $project]);
 
         $sessions = $this->sessionService->list($project);
 
@@ -38,7 +38,7 @@ class TrainingSessionController extends Controller
 
     public function store(StoreTrainingSessionRequest $request, Project $project): JsonResponse
     {
-        Gate::authorize('update', $project);
+        Gate::authorize('create', [TrainingSession::class, $project]);
 
         $session = $this->sessionService->create($project, $request->validated());
 
@@ -47,14 +47,14 @@ class TrainingSessionController extends Controller
 
     public function show(TrainingSession $session): JsonResponse
     {
-        Gate::authorize('view', $session->project);
+        Gate::authorize('view', $session);
 
         return ApiResponse::success(new TrainingSessionResource($session->load('trainer.user')), __('sessions.retrieved'));
     }
 
     public function update(UpdateTrainingSessionRequest $request, TrainingSession $session): JsonResponse
     {
-        Gate::authorize('update', $session->project);
+        Gate::authorize('update', $session);
 
         $session = $this->sessionService->update($session, $request->validated());
 
@@ -63,7 +63,7 @@ class TrainingSessionController extends Controller
 
     public function destroy(TrainingSession $session): JsonResponse
     {
-        Gate::authorize('update', $session->project);
+        Gate::authorize('delete', $session);
 
         $this->sessionService->delete($session);
 
