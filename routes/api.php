@@ -17,3 +17,7 @@ require __DIR__.'/projects.php';
 
 // Training session routes are registered from routes/sessions.php.
 require __DIR__.'/sessions.php';
+
+// Registration form routes (including the public application endpoints)
+// are registered from routes/registration.php.
+require __DIR__.'/registration.php';
