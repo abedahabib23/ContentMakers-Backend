@@ -8,3 +8,6 @@ require __DIR__.'/users.php';
 
 // RBAC (roles & permissions) routes are registered from routes/rbac.php.
 require __DIR__.'/rbac.php';
+
+// Trainer profile routes are registered from routes/trainers.php.
+require __DIR__.'/trainers.php';
