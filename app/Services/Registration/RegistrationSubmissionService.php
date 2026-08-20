@@ -7,10 +7,13 @@ use App\Enums\UserType;
 use App\Exceptions\Registration\EmailAlreadyRegisteredException;
 use App\Exceptions\Registration\RegistrationClosedException;
 use App\Exceptions\Registration\SubmissionAlreadyProcessedException;
+use App\Models\CenterSetting;
 use App\Models\RegistrationForm;
 use App\Models\RegistrationSubmission;
 use App\Models\Trainee;
 use App\Models\User;
+use App\Notifications\NewRegistrationSubmissionNotification;
+use App\Notifications\TraineeAccountCreatedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -25,7 +28,7 @@ class RegistrationSubmissionService
      */
     public function submit(RegistrationForm $form, array $data): RegistrationSubmission
     {
-        return DB::transaction(function () use ($form, $data) {
+        $submission = DB::transaction(function () use ($form, $data) {
             // Locked so two near-simultaneous submissions on the last open
             // seat can't both pass the isOpen() check before either commits.
             $locked = RegistrationForm::whereKey($form->id)->lockForUpdate()->firstOrFail();
@@ -40,6 +43,15 @@ class RegistrationSubmissionService
 
             return $locked->submissions()->create($data);
         });
+
+        // Sent after the transaction commits — never notify about a
+        // submission that might still get rolled back.
+        if (CenterSetting::current()->notify_email_on_new_request) {
+            $submission->registrationForm->project->trainer->user
+                ->notify(new NewRegistrationSubmissionNotification($submission));
+        }
+
+        return $submission;
     }
 
     /**
@@ -57,7 +69,7 @@ class RegistrationSubmissionService
             throw new EmailAlreadyRegisteredException;
         }
 
-        return DB::transaction(function () use ($submission) {
+        $result = DB::transaction(function () use ($submission) {
             $password = Str::password(12);
 
             $user = User::create([
@@ -85,6 +97,11 @@ class RegistrationSubmissionService
 
             return ['user' => $user, 'password' => $password];
         });
+
+        // Sent after the transaction commits, same reasoning as submit().
+        $result['user']->notify(new TraineeAccountCreatedNotification($result['password']));
+
+        return $result;
     }
 
     public function reject(RegistrationSubmission $submission): RegistrationSubmission
