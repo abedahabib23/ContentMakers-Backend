@@ -2,16 +2,25 @@
 
 namespace Database\Seeders;
 
-use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
+    // Hardcoded rather than config('auth.defaults.guard') — the app has
+    // multiple guards, and Permission/Role rows must always land on the
+    // one User::hasRoles actually checks against (see User::$guard_name).
+    private const GUARD = 'api';
+
     /**
      * @var list<string>
      */
     private const PERMISSIONS = [
+        'users.view',
+        'users.create',
+        'users.update',
+        'users.delete',
         'roles.view',
         'roles.create',
         'roles.update',
@@ -23,9 +32,11 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         foreach (self::PERMISSIONS as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+            Permission::findOrCreate($permission, self::GUARD);
         }
 
-        Role::firstOrCreate(['name' => Role::SUPER_ADMIN]);
+        // DatabaseSeeder runs this with WithoutModelEvents, which mutes
+        // Spatie's own cache-invalidation observers.
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 }

@@ -7,9 +7,10 @@ use App\Http\Requests\Rbac\StoreRoleRequest;
 use App\Http\Requests\Rbac\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
 use App\Http\Responses\ApiResponse;
-use App\Models\Role;
 use App\Services\Rbac\RoleService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -17,6 +18,8 @@ class RoleController extends Controller
 
     public function index(): JsonResponse
     {
+        Gate::authorize('viewAny', Role::class);
+
         return ApiResponse::success(
             RoleResource::collection($this->roleService->list()),
             __('rbac.roles_listed'),
@@ -25,6 +28,8 @@ class RoleController extends Controller
 
     public function store(StoreRoleRequest $request): JsonResponse
     {
+        Gate::authorize('create', Role::class);
+
         $role = $this->roleService->create($request->validated());
 
         return ApiResponse::success(new RoleResource($role), __('rbac.role_created'), 201);
@@ -32,11 +37,15 @@ class RoleController extends Controller
 
     public function show(Role $role): JsonResponse
     {
+        Gate::authorize('view', $role);
+
         return ApiResponse::success(new RoleResource($role->load('permissions')), __('rbac.role_retrieved'));
     }
 
     public function update(UpdateRoleRequest $request, Role $role): JsonResponse
     {
+        Gate::authorize('update', $role);
+
         $role = $this->roleService->update($role, $request->validated());
 
         return ApiResponse::success(new RoleResource($role), __('rbac.role_updated'));
@@ -44,6 +53,8 @@ class RoleController extends Controller
 
     public function destroy(Role $role): JsonResponse
     {
+        Gate::authorize('delete', $role);
+
         $this->roleService->delete($role);
 
         return ApiResponse::success(null, __('rbac.role_deleted'));

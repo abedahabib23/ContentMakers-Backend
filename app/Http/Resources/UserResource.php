@@ -20,9 +20,9 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'type' => $this->type->value,
             'email_verified' => $this->email_verified_at !== null,
-            'roles' => $this->authorizationData()['roles'],
-            'permissions' => $this->authorizationData()['permissions'],
+            'roles' => RoleResource::collection($this->whenLoaded('roles')),
         ];
     }
 }

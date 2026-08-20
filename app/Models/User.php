@@ -2,29 +2,43 @@
 
 namespace App\Models;
 
+use App\Enums\UserType;
 use Database\Factories\UserFactory;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Cache;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, MustVerifyEmailTrait, Notifiable;
+    use HasFactory, HasRoles, MustVerifyEmailTrait, Notifiable;
+
+    protected string $guard_name = 'api';
 
     /**
-     * Get the attributes that should be cast.
-     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'type',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
@@ -32,6 +46,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'type' => UserType::class,
         ];
     }
 
@@ -44,55 +59,14 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
 
     /**
-     * @return BelongsToMany<Role, $this>
+     * Structural, not behavioral — says what kind of account this is, never
+     * what it may do. Only super_admin feeds into authorization, as a
+     * global bypass (see Gate::before in AppServiceProvider); every other
+     * access decision belongs to RBAC (roles/permissions).
      */
-    public function roles(): BelongsToMany
+    public function isSuperAdmin(): bool
     {
-        return $this->belongsToMany(Role::class, 'user_role');
-    }
-
-    public function hasRole(string $role): bool
-    {
-        return in_array($role, $this->authorizationData()['roles'], true);
-    }
-
-    public function hasPermissionTo(string $permission): bool
-    {
-        if ($this->hasRole(Role::SUPER_ADMIN)) {
-            return true;
-        }
-
-        return in_array($permission, $this->authorizationData()['permissions'], true);
-    }
-
-    /**
-     * Role and permission names for this user, cached across requests since
-     * this backs every authorization check (see Gate::before in
-     * AppServiceProvider). Invalidated by RoleService whenever a role's
-     * permissions or a user's role assignments change.
-     *
-     * @return array{roles: array<int, string>, permissions: array<int, string>}
-     */
-    public function authorizationData(): array
-    {
-        return once(fn () => Cache::remember(
-            "rbac:user:{$this->id}",
-            now()->addHours(6),
-            function () {
-                $roles = $this->roles()->with('permissions')->get();
-
-                return [
-                    'roles' => $roles->pluck('name')->all(),
-                    'permissions' => $roles->pluck('permissions')->flatten()
-                        ->pluck('name')->unique()->values()->all(),
-                ];
-            },
-        ));
-    }
-
-    public static function forgetAuthorizationCache(int $userId): void
-    {
-        Cache::forget("rbac:user:{$userId}");
+        return $this->type === UserType::SuperAdmin;
     }
 
     public function getJWTIdentifier(): mixed
@@ -101,10 +75,15 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
 
     /**
+     * Only `type` goes in the token — roles/permissions are deliberately
+     * excluded and re-checked from the database on every request, never
+     * trusted from a claim that outlives a role change until the token
+     * expires.
+     *
      * @return array<string, mixed>
      */
     public function getJWTCustomClaims(): array
     {
-        return [];
+        return ['type' => $this->type->value];
     }
 }

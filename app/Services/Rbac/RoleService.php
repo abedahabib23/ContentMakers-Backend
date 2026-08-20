@@ -2,32 +2,38 @@
 
 namespace App\Services\Rbac;
 
-use App\Exceptions\Rbac\CannotModifyProtectedRoleException;
-use App\Models\Role;
-use App\Models\User;
+use App\Exceptions\Rbac\RoleInUseException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleService
 {
+    private const GUARD = 'api';
+
     /**
      * @return Collection<int, Role>
      */
     public function list(): Collection
     {
-        return Role::with('permissions')->get();
+        return Role::with('permissions')->withCount('users')->get();
     }
 
     /**
-     * @param  array{name: string, permission_ids?: array<int, int>}  $data
+     * @param  array{name: string, description?: string|null, permission_ids?: array<int, int>}  $data
      */
     public function create(array $data): Role
     {
         return DB::transaction(function () use ($data) {
-            $role = Role::create(['name' => $data['name']]);
+            $role = Role::create([
+                'name' => $data['name'],
+                'description' => $data['description'] ?? null,
+                'guard_name' => self::GUARD,
+            ]);
 
             if (! empty($data['permission_ids'])) {
-                $role->permissions()->sync($data['permission_ids']);
+                $role->syncPermissions(Permission::whereIn('id', $data['permission_ids'])->get());
             }
 
             return $role->load('permissions');
@@ -35,22 +41,15 @@ class RoleService
     }
 
     /**
-     * @param  array{name?: string, permission_ids?: array<int, int>}  $data
+     * @param  array{name?: string, description?: string|null, permission_ids?: array<int, int>}  $data
      */
     public function update(Role $role, array $data): Role
     {
-        if ($role->name === Role::SUPER_ADMIN) {
-            throw new CannotModifyProtectedRoleException;
-        }
-
         return DB::transaction(function () use ($role, $data) {
-            if (array_key_exists('name', $data)) {
-                $role->update(['name' => $data['name']]);
-            }
+            $role->update(array_intersect_key($data, array_flip(['name', 'description'])));
 
             if (array_key_exists('permission_ids', $data)) {
-                $role->permissions()->sync($data['permission_ids']);
-                $this->forgetCacheForRoleMembers($role);
+                $role->syncPermissions(Permission::whereIn('id', $data['permission_ids'])->get());
             }
 
             return $role->load('permissions');
@@ -59,30 +58,10 @@ class RoleService
 
     public function delete(Role $role): void
     {
-        if ($role->name === Role::SUPER_ADMIN) {
-            throw new CannotModifyProtectedRoleException;
+        if ($role->users()->exists()) {
+            throw new RoleInUseException;
         }
 
-        DB::transaction(function () use ($role) {
-            $this->forgetCacheForRoleMembers($role);
-            $role->delete();
-        });
-    }
-
-    /**
-     * @param  array<int, int>  $roleIds
-     */
-    public function syncUserRoles(User $user, array $roleIds): User
-    {
-        $user->roles()->sync($roleIds);
-        User::forgetAuthorizationCache($user->id);
-
-        return $user->load('roles.permissions');
-    }
-
-    private function forgetCacheForRoleMembers(Role $role): void
-    {
-        $role->users()->pluck('users.id')
-            ->each(fn (int $userId) => User::forgetAuthorizationCache($userId));
+        $role->delete();
     }
 }

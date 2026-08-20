@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
@@ -33,21 +32,6 @@ class AuthController extends Controller
             'access_token' => $result['accessToken'],
             'user' => new UserResource($result['user']),
         ], __('auth.login_success'))
-            ->withCookie($this->authService->makeRefreshTokenCookie(
-                $result['refreshToken'],
-                $result['refreshTokenExpiresAt'],
-                $request,
-            ));
-    }
-
-    public function register(RegisterRequest $request): JsonResponse
-    {
-        $result = $this->authService->register($request->validated(), $request);
-
-        return ApiResponse::success([
-            'access_token' => $result['accessToken'],
-            'user' => new UserResource($result['user']),
-        ], __('auth.registered'), 201)
             ->withCookie($this->authService->makeRefreshTokenCookie(
                 $result['refreshToken'],
                 $result['refreshTokenExpiresAt'],

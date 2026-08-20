@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Policies\RolePolicy;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,10 +44,15 @@ class AppServiceProvider extends ServiceProvider
             urlencode($notifiable->getEmailForPasswordReset()),
         ));
 
-        // Every ability check ($user->can(...), the `permission` middleware,
-        // future Policies) is granted through here first. Returning null
-        // (permission missing) falls through to any registered Policy
-        // instead of denying outright.
-        Gate::before(fn (User $user, string $ability) => $user->hasPermissionTo($ability) ? true : null);
+        // Role lives in the spatie/laravel-permission package, outside
+        // App\Models, so Laravel's policy auto-discovery can't find
+        // RolePolicy on its own.
+        Gate::policy(Role::class, RolePolicy::class);
+
+        // super_admin holds no permission rows at all — it bypasses every
+        // Gate/Policy check globally, keyed off the `type` column (not off
+        // holding a role). Returning null lets everyone else fall through
+        // to normal permission/Policy evaluation.
+        Gate::before(fn (User $user) => $user->isSuperAdmin() ? true : null);
     }
 }

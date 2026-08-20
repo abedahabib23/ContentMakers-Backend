@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\SetLocaleFromHeader;
 use App\Http\Responses\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -26,10 +25,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('api', [
             SetLocaleFromHeader::class,
-        ]);
-
-        $middleware->alias([
-            'permission' => EnsurePermission::class,
         ]);
 
         // This is an API-only app — there is no 'login' route to redirect

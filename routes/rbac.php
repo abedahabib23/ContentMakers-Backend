@@ -5,18 +5,18 @@ use App\Http\Controllers\Api\Rbac\RoleController;
 use App\Http\Controllers\Api\Rbac\UserRoleController;
 use Illuminate\Support\Facades\Route;
 
+// Authorization here is via RolePolicy/Gate::authorize() in each
+// controller action, not the `permission` middleware.
 Route::middleware('auth:api')->group(function () {
-    Route::get('permissions', [PermissionController::class, 'index'])
-        ->middleware('permission:permissions.view');
+    Route::get('permissions', [PermissionController::class, 'index']);
 
     Route::prefix('roles')->group(function () {
-        Route::get('/', [RoleController::class, 'index'])->middleware('permission:roles.view');
-        Route::post('/', [RoleController::class, 'store'])->middleware('permission:roles.create');
-        Route::get('{role}', [RoleController::class, 'show'])->middleware('permission:roles.view');
-        Route::put('{role}', [RoleController::class, 'update'])->middleware('permission:roles.update');
-        Route::delete('{role}', [RoleController::class, 'destroy'])->middleware('permission:roles.delete');
+        Route::get('/', [RoleController::class, 'index']);
+        Route::post('/', [RoleController::class, 'store']);
+        Route::get('{role}', [RoleController::class, 'show']);
+        Route::put('{role}', [RoleController::class, 'update']);
+        Route::delete('{role}', [RoleController::class, 'destroy']);
     });
 
-    Route::put('users/{user}/roles', [UserRoleController::class, 'update'])
-        ->middleware('permission:roles.assign');
+    Route::put('users/{user}/roles', [UserRoleController::class, 'update']);
 });

@@ -8,5 +8,5 @@ return [
     'role_deleted' => 'تم حذف الدور بنجاح.',
     'permissions_listed' => 'تم استرجاع الصلاحيات بنجاح.',
     'user_roles_synced' => 'تم تحديث أدوار المستخدم بنجاح.',
-    'cannot_modify_super_admin' => 'لا يمكن تعديل أو حذف دور super_admin.',
+    'role_in_use' => 'هذا الدور لسه مرتبط بمستخدمين، ما يمكن حذفه.',
 ];

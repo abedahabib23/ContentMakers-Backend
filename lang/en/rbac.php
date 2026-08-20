@@ -8,5 +8,5 @@ return [
     'role_deleted' => 'Role deleted successfully.',
     'permissions_listed' => 'Permissions retrieved successfully.',
     'user_roles_synced' => 'User roles updated successfully.',
-    'cannot_modify_super_admin' => 'The super_admin role cannot be modified or deleted.',
+    'role_in_use' => 'This role is still assigned to users and cannot be deleted.',
 ];

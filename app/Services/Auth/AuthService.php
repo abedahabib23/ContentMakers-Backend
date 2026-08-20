@@ -6,7 +6,6 @@ use App\Exceptions\Auth\InvalidCredentialsException;
 use App\Exceptions\Auth\InvalidRefreshTokenException;
 use App\Models\RefreshToken;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -32,27 +31,6 @@ class AuthService
         /** @var User $user */
         $user = Auth::guard('api')->user();
 
-        $refresh = $this->issueRefreshToken($user, $request);
-
-        return [
-            'user' => $user,
-            'accessToken' => $accessToken,
-            'refreshToken' => $refresh['raw'],
-            'refreshTokenExpiresAt' => $refresh['expiresAt'],
-        ];
-    }
-
-    /**
-     * @param  array{name: string, email: string, password: string}  $attributes
-     * @return array{user: User, accessToken: string, refreshToken: string, refreshTokenExpiresAt: Carbon}
-     */
-    public function register(array $attributes, Request $request): array
-    {
-        $user = User::create($attributes);
-
-        event(new Registered($user));
-
-        $accessToken = Auth::guard('api')->login($user);
         $refresh = $this->issueRefreshToken($user, $request);
 
         return [
