@@ -14,3 +14,6 @@ require __DIR__.'/trainers.php';
 
 // Project routes are registered from routes/projects.php.
 require __DIR__.'/projects.php';
+
+// Training session routes are registered from routes/sessions.php.
+require __DIR__.'/sessions.php';

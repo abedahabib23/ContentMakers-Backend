@@ -58,4 +58,12 @@ class Trainer extends Model
     {
         return $this->hasMany(Project::class);
     }
+
+    /**
+     * @return HasMany<TrainingSession, $this>
+     */
+    public function trainingSessions(): HasMany
+    {
+        return $this->hasMany(TrainingSession::class);
+    }
 }
