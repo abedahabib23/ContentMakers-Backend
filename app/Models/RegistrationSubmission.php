@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ApplicantLevel;
+use App\Enums\SubmissionStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,12 +25,24 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class RegistrationSubmission extends Model
 {
     /**
+     * Mirrors the column's DB-level default — see Trainer::$attributes for
+     * why this is needed (Eloquent doesn't re-fetch server-side defaults
+     * after an insert).
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'status' => SubmissionStatus::Pending->value,
+    ];
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
             'level' => ApplicantLevel::class,
+            'status' => SubmissionStatus::class,
         ];
     }
 

@@ -15,6 +15,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('registration-submissions/{submission}/id-photo', [RegistrationSubmissionController::class, 'idPhoto']);
     Route::get('registration-submissions/{submission}/cv', [RegistrationSubmissionController::class, 'cv']);
+    Route::post('registration-submissions/{submission}/accept', [RegistrationSubmissionController::class, 'accept']);
+    Route::post('registration-submissions/{submission}/reject', [RegistrationSubmissionController::class, 'reject']);
 });
 
 // Public — no auth:api. Candidates reach these via the registration_url

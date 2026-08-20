@@ -68,6 +68,16 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
 
     /**
+     * A user may be enrolled as a trainee in more than one project.
+     *
+     * @return HasMany<Trainee, $this>
+     */
+    public function trainees(): HasMany
+    {
+        return $this->hasMany(Trainee::class);
+    }
+
+    /**
      * Structural, not behavioral — says what kind of account this is, never
      * what it may do. Only super_admin feeds into authorization, as a
      * global bypass (see Gate::before in AppServiceProvider); every other

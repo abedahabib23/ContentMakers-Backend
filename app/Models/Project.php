@@ -40,4 +40,12 @@ class Project extends Model
     {
         return $this->hasMany(RegistrationForm::class);
     }
+
+    /**
+     * @return HasMany<Trainee, $this>
+     */
+    public function trainees(): HasMany
+    {
+        return $this->hasMany(Trainee::class);
+    }
 }

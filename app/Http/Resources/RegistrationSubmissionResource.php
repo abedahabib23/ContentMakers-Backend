@@ -33,6 +33,7 @@ class RegistrationSubmissionResource extends JsonResource
             'has_cv' => $this->cv_path !== null,
             'portfolio_url' => $this->portfolio_url,
             'motivation' => $this->motivation,
+            'status' => $this->status->value,
             'created_at' => $this->created_at,
         ];
     }
