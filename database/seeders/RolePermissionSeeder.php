@@ -38,6 +38,8 @@ class RolePermissionSeeder extends Seeder
         'outputs.update',
         'outputs.review',
         'outputs.delete',
+        'center_settings.view',
+        'center_settings.update',
     ];
 
     public function run(): void

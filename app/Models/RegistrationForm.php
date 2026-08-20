@@ -38,7 +38,11 @@ class RegistrationForm extends Model
 
     public function isOpen(): bool
     {
-        return now()->lessThanOrEqualTo($this->deadline)
+        // The center-wide "accepts_registrations" toggle closes every
+        // registration form immediately, regardless of its own deadline
+        // or remaining seats.
+        return CenterSetting::current()->accepts_registrations
+            && now()->lessThanOrEqualTo($this->deadline)
             && $this->submissions()->count() < $this->seats_count;
     }
 }

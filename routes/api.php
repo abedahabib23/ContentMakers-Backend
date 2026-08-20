@@ -30,3 +30,6 @@ require __DIR__.'/tasks.php';
 
 // Trainee output routes are registered from routes/outputs.php.
 require __DIR__.'/outputs.php';
+
+// Center settings routes are registered from routes/center_settings.php.
+require __DIR__.'/center_settings.php';
