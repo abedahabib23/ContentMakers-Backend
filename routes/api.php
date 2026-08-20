@@ -21,3 +21,6 @@ require __DIR__.'/sessions.php';
 // Registration form routes (including the public application endpoints)
 // are registered from routes/registration.php.
 require __DIR__.'/registration.php';
+
+// Attendance routes are registered from routes/attendance.php.
+require __DIR__.'/attendance.php';
