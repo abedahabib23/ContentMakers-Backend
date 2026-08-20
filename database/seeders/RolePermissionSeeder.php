@@ -63,6 +63,7 @@ class RolePermissionSeeder extends Seeder
         'task_evaluations.create',
         'task_evaluations.update',
         'task_evaluations.delete',
+        'trainees.view',
     ];
 
     public function run(): void

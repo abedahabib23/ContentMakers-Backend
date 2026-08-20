@@ -36,3 +36,6 @@ require __DIR__.'/center_settings.php';
 
 // Certificate routes are registered from routes/certificates.php.
 require __DIR__.'/certificates.php';
+
+// Trainee routes are registered from routes/trainees.php.
+require __DIR__.'/trainees.php';
