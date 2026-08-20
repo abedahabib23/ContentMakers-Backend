@@ -16,6 +16,9 @@ return new class extends Migration
             UserType::cases(),
         ));
 
+        // migrate:fresh drops all tables but not custom types, so without
+        // this, re-running from scratch fails with "type already exists".
+        DB::statement('DROP TYPE IF EXISTS user_type');
         DB::statement("CREATE TYPE user_type AS ENUM ({$values})");
         DB::statement('ALTER TABLE users ADD COLUMN type user_type NOT NULL');
     }

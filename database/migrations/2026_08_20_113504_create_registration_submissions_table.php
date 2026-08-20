@@ -18,6 +18,9 @@ return new class extends Migration
             ApplicantLevel::cases(),
         ));
 
+        // migrate:fresh drops all tables but not custom types, so without
+        // this, re-running from scratch fails with "type already exists".
+        DB::statement('DROP TYPE IF EXISTS applicant_level');
         DB::statement("CREATE TYPE applicant_level AS ENUM ({$values})");
 
         Schema::create('registration_submissions', function (Blueprint $table) {

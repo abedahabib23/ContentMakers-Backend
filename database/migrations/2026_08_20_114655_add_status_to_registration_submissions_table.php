@@ -16,6 +16,9 @@ return new class extends Migration
             SubmissionStatus::cases(),
         ));
 
+        // migrate:fresh drops all tables but not custom types, so without
+        // this, re-running from scratch fails with "type already exists".
+        DB::statement('DROP TYPE IF EXISTS submission_status');
         DB::statement("CREATE TYPE submission_status AS ENUM ({$values})");
         DB::statement("ALTER TABLE registration_submissions ADD COLUMN status submission_status NOT NULL DEFAULT 'pending'");
     }

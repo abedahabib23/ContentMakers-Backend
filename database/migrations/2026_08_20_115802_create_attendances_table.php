@@ -18,6 +18,9 @@ return new class extends Migration
             AttendanceStatus::cases(),
         ));
 
+        // migrate:fresh drops all tables but not custom types, so without
+        // this, re-running from scratch fails with "type already exists".
+        DB::statement('DROP TYPE IF EXISTS attendance_status');
         DB::statement("CREATE TYPE attendance_status AS ENUM ({$values})");
 
         Schema::create('attendances', function (Blueprint $table) {

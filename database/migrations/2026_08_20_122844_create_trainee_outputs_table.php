@@ -18,6 +18,9 @@ return new class extends Migration
             OutputStatus::cases(),
         ));
 
+        // migrate:fresh drops all tables but not custom types, so without
+        // this, re-running from scratch fails with "type already exists".
+        DB::statement('DROP TYPE IF EXISTS output_status');
         DB::statement("CREATE TYPE output_status AS ENUM ({$values})");
 
         Schema::create('trainee_outputs', function (Blueprint $table) {
