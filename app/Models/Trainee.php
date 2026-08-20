@@ -49,4 +49,12 @@ class Trainee extends Model
     {
         return $this->hasMany(TaskEvaluation::class);
     }
+
+    /**
+     * @return HasMany<TraineeOutput, $this>
+     */
+    public function outputs(): HasMany
+    {
+        return $this->hasMany(TraineeOutput::class);
+    }
 }

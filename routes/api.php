@@ -27,3 +27,6 @@ require __DIR__.'/attendance.php';
 
 // Task and evaluation routes are registered from routes/tasks.php.
 require __DIR__.'/tasks.php';
+
+// Trainee output routes are registered from routes/outputs.php.
+require __DIR__.'/outputs.php';

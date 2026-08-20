@@ -56,4 +56,12 @@ class Project extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    /**
+     * @return HasMany<TraineeOutput, $this>
+     */
+    public function traineeOutputs(): HasMany
+    {
+        return $this->hasMany(TraineeOutput::class);
+    }
 }
