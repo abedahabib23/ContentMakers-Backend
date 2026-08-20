@@ -29,6 +29,10 @@ class RolePermissionSeeder extends Seeder
         'permissions.view',
         'trainers.view',
         'trainers.update',
+        'projects.view',
+        'projects.create',
+        'projects.update',
+        'projects.delete',
     ];
 
     public function run(): void
