@@ -41,4 +41,12 @@ class Trainee extends Model
     {
         return $this->hasMany(Attendance::class);
     }
+
+    /**
+     * @return HasMany<TaskEvaluation, $this>
+     */
+    public function taskEvaluations(): HasMany
+    {
+        return $this->hasMany(TaskEvaluation::class);
+    }
 }
