@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Projects\IndexProjectRequest;
 use App\Http\Requests\Projects\StoreProjectRequest;
 use App\Http\Requests\Projects\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
@@ -10,18 +11,15 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Project;
 use App\Services\Projects\ProjectService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
 {
     public function __construct(private readonly ProjectService $projectService) {}
 
-    public function index(Request $request): JsonResponse
+    public function index(IndexProjectRequest $request): JsonResponse
     {
-        Gate::authorize('viewAny', Project::class);
-
-        $projects = $this->projectService->list($request->user());
+        $projects = $this->projectService->list($request->user(), $request->validated());
 
         return ApiResponse::success(
             ProjectResource::collection($projects),

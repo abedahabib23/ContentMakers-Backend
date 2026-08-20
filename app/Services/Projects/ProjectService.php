@@ -15,9 +15,10 @@ class ProjectService
     public const IMAGE_DISK = 'public';
 
     /**
+     * @param  array{search?: string|null, trainer_id?: int|null}  $filters
      * @return LengthAwarePaginator<int, Project>
      */
-    public function list(User $actor): LengthAwarePaginator
+    public function list(User $actor, array $filters = []): LengthAwarePaginator
     {
         $query = Project::with('trainer.user')->latest();
 
@@ -25,6 +26,21 @@ class ProjectService
         // grants access to the endpoint, not to every trainer's projects.
         if (! $actor->can('projects.view')) {
             $query->whereHas('trainer', fn ($q) => $q->where('user_id', $actor->id));
+        }
+
+        if (! empty($filters['search'])) {
+            $search = $filters['search'];
+
+            // ilike, not like — Postgres LIKE is case-sensitive.
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', "%{$search}%")
+                    ->orWhere('number', 'ilike', "%{$search}%")
+                    ->orWhere('description', 'ilike', "%{$search}%");
+            });
+        }
+
+        if (! empty($filters['trainer_id'])) {
+            $query->where('trainer_id', $filters['trainer_id']);
         }
 
         return $query->paginate();
