@@ -4,15 +4,20 @@ namespace App\Http\Requests\Users;
 
 use App\Enums\UserType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
 
 class UpdateUserRequest extends FormRequest
 {
+    /**
+     * Checked here, not just in the controller — see StoreUserRequest for
+     * why.
+     */
     public function authorize(): bool
     {
-        return true;
+        return Gate::allows('update', $this->route('user'));
     }
 
     /**

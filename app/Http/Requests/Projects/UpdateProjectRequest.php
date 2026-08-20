@@ -3,13 +3,18 @@
 namespace App\Http\Requests\Projects;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class UpdateProjectRequest extends FormRequest
 {
+    /**
+     * Checked here, not just in the controller — see StoreProjectRequest
+     * for why.
+     */
     public function authorize(): bool
     {
-        return true;
+        return Gate::allows('update', $this->route('project'));
     }
 
     /**

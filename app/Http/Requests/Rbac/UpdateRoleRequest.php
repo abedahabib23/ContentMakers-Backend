@@ -3,13 +3,18 @@
 namespace App\Http\Requests\Rbac;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class UpdateRoleRequest extends FormRequest
 {
+    /**
+     * Checked here, not just in the controller — see StoreRoleRequest for
+     * why.
+     */
     public function authorize(): bool
     {
-        return true;
+        return Gate::allows('update', $this->route('role'));
     }
 
     /**
