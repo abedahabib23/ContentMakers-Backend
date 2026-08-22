@@ -18,10 +18,17 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolePermissionSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'type' => UserType::SuperAdmin,
-        ]);
+        // Guarded rather than firstOrCreate: the factory must not even build
+        // its attributes on re-runs, and re-seeding must never rotate the
+        // existing admin's password.
+        $email = 'test@example.com';
+
+        if (User::query()->where('email', $email)->doesntExist()) {
+            User::factory()->create([
+                'name' => 'Test User',
+                'email' => $email,
+                'type' => UserType::SuperAdmin,
+            ]);
+        }
     }
 }
